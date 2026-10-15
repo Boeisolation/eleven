@@ -46,9 +46,21 @@ function isExecutable(path: string): boolean {
   }
 }
 
+const COMMON_BIN_DIRS = [
+  join(homedir(), ".grok", "bin"),
+  join(homedir(), ".local", "bin"),
+  join(homedir(), ".bun", "bin"),
+  join(homedir(), ".cargo", "bin"),
+  join(homedir(), ".antigravity-ide", "antigravity-ide", "bin"),
+  "/opt/homebrew/bin",
+  "/opt/homebrew/sbin",
+  "/usr/local/bin",
+];
+
 /** Looks a command up on PATH directly, so shell functions and aliases never match. */
 export function findOnPath(name: string): string | null {
-  const dirs = (process.env.PATH ?? "").split(delimiter).filter(Boolean);
+  const envDirs = (process.env.PATH ?? "").split(delimiter).filter(Boolean);
+  const dirs = [...new Set([...envDirs, ...COMMON_BIN_DIRS])];
   const names = OS === "windows" && !/\.[a-z]+$/i.test(name) ? (process.env.PATHEXT ?? ".EXE;.CMD;.BAT").split(";").filter(Boolean).map((ext) => `${name}${ext.toLowerCase()}`) : [name];
   return dirs.flatMap((dir) => names.map((file) => join(dir, file))).find(OS === "windows" ? existsSync : isExecutable) ?? null;
 }
@@ -107,6 +119,17 @@ function unpinnedPackage(pkg: string): string {
 }
 
 async function detectOne(agent: AgentEntry, roots: readonly string[]): Promise<NativeCommand | null> {
+  if (agent.id === "grok-build" || agent.id === "grok") {
+    const grok = findOnPath("grok");
+    if (grok) return { path: grok, args: ["agent", "stdio"] };
+  }
+  if (agent.id === "antigravity-acp") {
+    const server = findOnPath("agy_acp_server.par") || findOnPath("agy-acp-server");
+    if (server) return { path: server, args: [] };
+    const agy = findOnPath("agy");
+    if (agy) return { path: agy, args: ["--mode", "auto"] };
+  }
+
   const dist = agent.distribution;
   switch (dist.kind) {
     case "binary": {
@@ -142,7 +165,12 @@ export type Presence = {
 /** The agent's own CLI on PATH, such as `claude` for Claude, or null when it has none or isn't installed. */
 function ownCli(agent: AgentEntry): string | null {
   const name = AGENT_CLI[agent.id];
-  return name ? findOnPath(name) : null;
+  if (name) {
+    const found = findOnPath(name);
+    if (found) return found;
+  }
+  const candidate = agent.id.replace(/-acp$/, "").replace(/-build$/, "").replace(/-cli$/, "");
+  return findOnPath(candidate);
 }
 
 /** Agents on this Mac, keyed by registry id: their ACP command, their own CLI, or both. */
