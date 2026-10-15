@@ -9,6 +9,7 @@ import { prepareTarget, type Target } from "./engine/target";
 import { adoptToolchain } from "./engine/toolchain";
 import { startTelemetry } from "./lib/telemetry";
 import { startUpdates } from "./lib/update";
+import { currentSettings } from "./settings/store";
 
 await adoptLoginShell();
 adoptToolchain();
@@ -18,6 +19,8 @@ startTelemetry();
 
 const initialPath = process.argv[2];
 const initial: Target | null = initialPath ? prepareTarget(initialPath) : null;
+const settings = currentSettings();
+const windowBackground = settings.transparency === 0 && settings.frost === 0 ? "opaque" : "blurred";
 
 render(<Fonts><App initial={initial} /></Fonts>, {
   title: "Eleven",
@@ -27,7 +30,7 @@ render(<Fonts><App initial={initial} /></Fonts>, {
   minWidth: 960,
   minHeight: 640,
   titlebarTransparent: true,
-  windowBackground: "blurred",
+  windowBackground,
   trafficLightX: 18,
   trafficLightY: 18,
   onKeyDown: dispatchShortcut,

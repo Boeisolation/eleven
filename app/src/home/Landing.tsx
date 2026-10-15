@@ -2,17 +2,18 @@ import type { ReactElement, ReactNode } from "react";
 
 import { useTheme } from "../theme";
 import { appIcon, Icon, Row } from "../components/ui";
+import { t } from "../i18n";
 
 function suggestions(file: string | null, model: boolean): readonly { readonly kind: string; readonly icon: string; readonly text: string; readonly ask: string }[] {
   const binary = file ?? "/bin/ls";
   const first = model && file
-    ? { kind: "Model", icon: "model", text: `What is in ${file}, and is it safe to load?`, ask: `What is in ${file}, and is it safe to load?` }
-    : { kind: "Binary", icon: "binary", text: `What does ${binary} do when it starts?`, ask: `What does ${binary} do when it starts, and where does it print its usage?` };
+    ? { kind: t("Model"), icon: "model", text: t(`What is in ${file}, and is it safe to load?`, `${file} 中包含什么内容，加载它是否安全？`), ask: t(`What is in ${file}, and is it safe to load?`, `${file} 中包含什么内容，加载它是否安全？`) }
+    : { kind: t("Binary"), icon: "binary", text: t(`What does ${binary} do when it starts?`, `${binary} 启动时执行了什么操作？`), ask: t(`What does ${binary} do when it starts, and where does it print its usage?`, `${binary} 启动时执行了什么操作，它在何处打印用法说明？`) };
   return [
     first,
-    { kind: "App", icon: "app", text: "How does Notes save attachments?", ask: "How does Notes save attachments?" },
-    ...(model ? [{ kind: "Binary", icon: "binary", text: "What does /bin/ls do when it starts?", ask: "What does /bin/ls do when it starts, and where does it print its usage?" }] : [{ kind: "Model", icon: "model", text: "Is this .pt file safe to load?", ask: "Is this .pt file safe to load?" }]),
-    { kind: "Shader", icon: "gpu", text: "Why is this blur shader slow?", ask: "Why is this blur shader slow?" },
+    { kind: t("App"), icon: "app", text: t("How does Notes save attachments?"), ask: t("How does Notes save attachments?") },
+    ...(model ? [{ kind: t("Binary"), icon: "binary", text: t("What does /bin/ls do when it starts?"), ask: t("What does /bin/ls do when it starts, and where does it print its usage?") }] : [{ kind: t("Model"), icon: "model", text: t("Is this .pt file safe to load?"), ask: t("Is this .pt file safe to load?") }]),
+    { kind: t("Shader"), icon: "gpu", text: t("Why is this blur shader slow?"), ask: t("Why is this blur shader slow?") },
   ];
 }
 
@@ -41,7 +42,7 @@ export function Landing({ composer, file, model = false, onSuggest, showSuggesti
   return (
     <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, alignItems: "center", justifyContent: "center", paddingTop: 32, paddingLeft: 24, paddingRight: 24, paddingBottom: 64 }}>
       <img src={appIcon(p.icon)} style={{ width: 56, height: 56, marginBottom: 14 }} />
-      <div style={{ fontSize: 28, fontWeight: 500, marginBottom: 22, color: p.text }}>What should we take apart?</div>
+      <div style={{ fontSize: 28, fontWeight: 500, marginBottom: 22, color: p.text }}>{t("What should we take apart?")}</div>
       {composer}
       {showSuggestions && (
         <div style={{ display: "grid", gridTemplateColumns: 2, gap: 10, marginTop: 16, width: "100%", maxWidth: 700 }}>

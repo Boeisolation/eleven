@@ -15,16 +15,16 @@ import { Heading, useSectionOpen } from "./parts";
 import { PAST_CHEVRON, TreeFolder, treeIndent } from "./SourceRows";
 
 const SHOWS: readonly { readonly id: FnShow; readonly label: string; readonly chip: string }[] = [
-  { id: "all", label: "All functions", chip: "" },
-  { id: "yours", label: "Your code only", chip: "Your code" },
-  { id: "renamed", label: "Renamed by you", chip: "Renamed" },
-  { id: "imports", label: "Imports", chip: "Imports" },
+  { id: "all", label: "所有函数", chip: "" },
+  { id: "yours", label: "仅用户代码", chip: "用户代码" },
+  { id: "renamed", label: "已重命名函数", chip: "已重命名" },
+  { id: "imports", label: "导入函数", chip: "导入表" },
 ];
 
 const SORTS: readonly { readonly id: FnSort; readonly label: string }[] = [
-  { id: "files", label: "Group by package or file" },
-  { id: "address", label: "Sort by address" },
-  { id: "name", label: "Sort by name" },
+  { id: "files", label: "按包或源文件分组" },
+  { id: "address", label: "按内存地址排序" },
+  { id: "name", label: "按符号名称排序" },
 ];
 
 /** The menu at the end of the filter field: what to show, then how to group it. */
@@ -56,21 +56,21 @@ export function FunctionsHead({ view, first }: { readonly view: FnView; readonly
     const query = wb.s.filter.trim();
     if (!query) return;
     if (first) openFn(first, false);
-    else ask(bench, `Find the functions in ${program.name} that have to do with "${query}".`);
+    else ask(bench, `找出 ${program.name} 中与 "${query}" 相关的函数。`);
   };
   return (
     <div style={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
-      <Heading id="functions" title="Functions" count={program.total > 0 ? program.total.toLocaleString() : ""} />
+      <Heading id="functions" title="函数列表" count={program.total > 0 ? program.total.toLocaleString() : ""} />
       {open && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, height: 28, marginTop: 2, marginBottom: 6, paddingLeft: 9, paddingRight: 4, borderRadius: 7, backgroundColor: p.fill }}>
           <Icon name="search" size={12} color={p.muted} />
-          <input {...TYPING} value={wb.s.filter} placeholder="Filter" aria-label="Filter functions" onChange={(e) => wb.patch({ filter: e.value ?? "" })} onSubmit={submit} style={{ flexGrow: 1, minWidth: 0, fontSize: 12.5, color: p.text }} />
+          <input {...TYPING} value={wb.s.filter} placeholder="过滤函数…" aria-label="过滤函数" onChange={(e) => wb.patch({ filter: e.value ?? "" })} onSubmit={submit} style={{ flexGrow: 1, minWidth: 0, fontSize: 12.5, color: p.text }} />
           {chip && (
-            <div onClick={() => view.setShow("all")} role="button" aria-label="Show all functions" style={{ display: "flex", alignItems: "center", gap: 4, height: 20, flexShrink: 0, paddingLeft: 6, paddingRight: 6, borderRadius: 5, backgroundColor: p.sel2, fontSize: 11.5, color: p.text3, cursor: "pointer", hover: HOVER }}>
+            <div onClick={() => view.setShow("all")} role="button" aria-label="显示全部函数" style={{ display: "flex", alignItems: "center", gap: 4, height: 20, flexShrink: 0, paddingLeft: 6, paddingRight: 6, borderRadius: 5, backgroundColor: p.sel2, fontSize: 11.5, color: p.text3, cursor: "pointer", hover: HOVER }}>
               <div style={{ pointerEvents: "none" }}>{`${chip} ×`}</div>
             </div>
           )}
-          <div onClick={(e) => openMenu(e.x ?? 0, e.y ?? 0, filterMenu(view))} role="button" aria-label="Filter and group" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 22, height: 22, flexShrink: 0, borderRadius: 5, cursor: "pointer", hover: HOVER }}>
+          <div onClick={(e) => openMenu(e.x ?? 0, e.y ?? 0, filterMenu(view))} role="button" aria-label="过滤与分组" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 22, height: 22, flexShrink: 0, borderRadius: 5, cursor: "pointer", hover: HOVER }}>
             <Icon name="sort" size={13} color={filtered ? p.text : p.muted} />
           </div>
         </div>
@@ -82,7 +82,7 @@ export function FunctionsHead({ view, first }: { readonly view: FnView; readonly
 /** Under the results while filtering: how many matched, or that ↩ asks the agent. */
 export function MatchNote({ count }: { readonly count: number }): ReactElement {
   const { p } = useTheme();
-  const text = count === 0 ? "No functions match. Press ↩ to ask the agent." : `${count.toLocaleString()} ${count === 1 ? "match" : "matches"}, your code first. ↩ opens the first.`;
+  const text = count === 0 ? "未找到匹配函数。按 ↩ 咨询智能体。" : `匹配到 ${count.toLocaleString()} 个函数，优先展示用户代码。按 ↩ 打开第一个。`;
   return <div style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: 8, paddingRight: 8, fontSize: 11.5, color: p.faint }}>{text}</div>;
 }
 

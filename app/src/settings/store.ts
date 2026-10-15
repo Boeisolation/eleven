@@ -103,7 +103,7 @@ export type Settings = {
   readonly disabledSkills: readonly string[];
   readonly skillsInComposer: boolean;
   readonly ghidraPseudocode: boolean;
-  readonly ghidraMemory: "Automatic" | "4 GB" | "8 GB" | "16 GB";
+  readonly ghidraMemory: "Automatic" | "2 GB" | "4 GB" | "8 GB" | "16 GB";
   readonly findParameters: boolean;
   readonly rebuildSwitches: boolean;
   readonly hiddenCode: boolean;
@@ -162,8 +162,8 @@ export const DEFAULT_SETTINGS: Settings = {
   updateChannel: "Stable",
   showWhatsNew: true,
   showSuggestions: true,
-  transparency: process.platform === "linux" ? 0 : 30,
-  frost: 60,
+  transparency: 0,
+  frost: 0,
   lineSpacing: "Normal",
   codeLanguage: "Pseudocode",
   lineNumbers: true,
@@ -174,7 +174,7 @@ export const DEFAULT_SETTINGS: Settings = {
   soundWhenAsked: false,
   chatHistory: "Normal",
   openWorkbench: "When the agent opens code",
-  keepAgentsRunning: true,
+  keepAgentsRunning: false,
   startAgentWithProject: false,
   elevenTools: true,
   reaTools: true,
@@ -184,13 +184,13 @@ export const DEFAULT_SETTINGS: Settings = {
   customToolServer: "",
   hidePaths: true,
   askBeforeWholeFile: false,
-  countInstall: true,
+  countInstall: false,
   crashReports: false,
   usageStats: false,
   disabledSkills: [],
   skillsInComposer: true,
   ghidraPseudocode: true,
-  ghidraMemory: "Automatic",
+  ghidraMemory: "2 GB",
   findParameters: false,
   rebuildSwitches: false,
   hiddenCode: false,
@@ -297,7 +297,7 @@ const SETTINGS: z.ZodType<Settings> = z.object({
   disabledSkills: z.array(z.string()).catch([]),
   skillsInComposer: z.boolean().catch(D.skillsInComposer),
   ghidraPseudocode: z.boolean().catch(D.ghidraPseudocode),
-  ghidraMemory: z.enum(["Automatic", "4 GB", "8 GB", "16 GB"]).catch(D.ghidraMemory),
+  ghidraMemory: z.enum(["Automatic", "2 GB", "4 GB", "8 GB", "16 GB"]).catch(D.ghidraMemory),
   findParameters: z.boolean().catch(D.findParameters),
   rebuildSwitches: z.boolean().catch(D.rebuildSwitches),
   hiddenCode: z.boolean().catch(D.hiddenCode),

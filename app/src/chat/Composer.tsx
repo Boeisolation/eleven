@@ -19,13 +19,14 @@ import type { Thread } from "./useThread";
 import { noteTyping } from "../lib/shortcuts";
 import { useDropTarget } from "../Shell";
 import { primaryHeld } from "../lib/platform";
+import { t } from "../i18n";
 
 export type ComposerPlace = "landing" | "conversation" | "dock";
 
 const PLACEHOLDER: Readonly<Record<ComposerPlace, string>> = {
-  landing: "Ask anything, or drop an app, binary, shader or model here",
-  conversation: "Ask a follow-up, / for skills, @ to mention",
-  dock: "Ask about this code, / for skills, @ to mention",
+  landing: t("Ask anything, or drop an app, binary, shader or model here"),
+  conversation: t("Ask a follow-up, / for skills, @ to mention"),
+  dock: t("Ask about this code, / for skills, @ to mention"),
 };
 
 const NO_MENTIONS = indexMentions([]);
@@ -46,7 +47,7 @@ function SendButton({ stopping, ready, blocked, large = false, onClick }: { read
   const lit = (ready || stopping) && !blocked;
   const look = large ? { backgroundColor: lit ? p.text : p.faint } : { backgroundColor: blocked ? p.faint : p.primary, opacity: lit ? 1 : 0.35 };
   return (
-    <div onClick={() => !blocked && onClick()} aria-label={stopping ? "Stop" : blocked ? "Can't send yet" : "Send"} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: box, height: box, borderRadius: box / 2, flexShrink: 0, ...look, cursor: blocked ? "default" : "pointer", hover: blocked ? {} : { opacity: 0.72 } }}>
+    <div onClick={() => !blocked && onClick()} aria-label={stopping ? t("Stop") : blocked ? t("Can't send yet") : t("Send")} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: box, height: box, borderRadius: box / 2, flexShrink: 0, ...look, cursor: blocked ? "default" : "pointer", hover: blocked ? {} : { opacity: 0.72 } }}>
       <Icon name={stopping ? "stop" : "send"} size={stopping ? 12 : 15} color={p.onPrimary} on={stopping} />
     </div>
   );
@@ -54,7 +55,7 @@ function SendButton({ stopping, ready, blocked, large = false, onClick }: { read
 
 function TargetPill({ target, onOpen, onRemove }: { readonly target: Target | null; readonly onOpen: () => void; readonly onRemove: () => void }): ReactElement {
   const { p } = useTheme();
-  if (!target) return <Chip label="No file" caret onClick={onOpen} />;
+  if (!target) return <Chip label={t("No file")} caret onClick={onOpen} />;
   return (
     <Row gap={6} style={{ height: 30, paddingLeft: 8, paddingRight: 6, fontSize: 12.5, color: p.text3 }}>
       <div onClick={onOpen} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", hover: { opacity: 0.72 } }}>

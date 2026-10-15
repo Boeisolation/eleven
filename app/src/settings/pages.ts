@@ -64,12 +64,14 @@ const PATHS: Readonly<Record<Page, string>> = {
 
 const SPARK = "M19.5 1.2c.4 2 1.4 3 3.4 3.4-2 .4-3 1.4-3.4 3.4-.4-2-1.4-3-3.4-3.4 2-.4 3-1.4 3.4-3.4z";
 
+import { t } from "../i18n";
+
 export function pageTitle(page: Page): string {
-  return TITLES[page];
+  return t(TITLES[page]);
 }
 
 export function pageIntro(page: Page): string {
-  return INTROS[page];
+  return t(INTROS[page]);
 }
 
 /** The page's icon from the design board, as SVG drawn in currentColor. */

@@ -11,7 +11,7 @@ import { shortName } from "../gpu/look";
 
 const VIEW_ICON: Readonly<Record<CodeMode, string>> = { pseudo: "pseudocode", asm: "assembly", graph: "graph", hex: "hex" };
 const LIST_ICON: Readonly<Record<ListKind, string>> = { strings: "strings", imports: "library", segments: "segments" };
-export const LIST_TITLE: Readonly<Record<ListKind, string>> = { strings: "Strings", imports: "Imports", segments: "Segments" };
+export const LIST_TITLE: Readonly<Record<ListKind, string>> = { strings: "字符串", imports: "导入表", segments: "内存段" };
 
 type Look = { readonly title: string; readonly icon: string; readonly iconColor: string | null };
 
@@ -22,7 +22,7 @@ function useLook(tab: Tab): Look {
     case "fn":
       return { title: nameOf(tab.addr), icon: VIEW_ICON[tab.view], iconColor: p.call };
     case "thread":
-      return { title: chatTitle(chat) ?? "New chat", icon: "thread", iconColor: null };
+      return { title: chatTitle(chat) ?? "新建对话", icon: "thread", iconColor: null };
     case "list":
       return { title: LIST_TITLE[tab.list], icon: LIST_ICON[tab.list], iconColor: null };
     case "shader":
@@ -32,11 +32,11 @@ function useLook(tab: Tab): Look {
     case "profile":
       return { title: tab.title, icon: "profile", iconColor: null };
     case "diff":
-      return { title: "Compare", icon: "split", iconColor: null };
+      return { title: "差异对比", icon: "split", iconColor: null };
     case "debug":
-      return { title: "Debugger", icon: "debug", iconColor: null };
+      return { title: "调试器", icon: "debug", iconColor: null };
     case "listing":
-      return { title: "Listing", icon: "assembly", iconColor: null };
+      return { title: "反汇编列表", icon: "assembly", iconColor: null };
     case "source":
       return { title: tab.file.split("/").pop() ?? tab.file, icon: "source", iconColor: null };
     case "resource":

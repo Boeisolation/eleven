@@ -1,3 +1,5 @@
+import { t } from "../i18n";
+
 export const COMMAND_IDS = [
   "goto", "palette", "open", "save", "back", "forward", "find", "findNext", "findPrevious",
   "rename", "comment", "xrefs", "bookmark", "undo", "redo",
@@ -74,5 +76,6 @@ export function isCommandId(value: string): value is CommandId {
 }
 
 export function commandLabel(id: CommandId): string {
-  return COMMANDS.find((command) => command.id === id)?.label ?? id;
+  const raw = COMMANDS.find((command) => command.id === id)?.label ?? id;
+  return t(raw);
 }

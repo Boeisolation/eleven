@@ -14,7 +14,7 @@ export type Docks = { readonly right: readonly Tool[]; readonly bottom: readonly
 export const TOOLS: readonly Tool[] = ["agent", "inspector", "refs", "find", "debug", "patches", "terminal"];
 
 export const TOOL_LABEL: Readonly<Record<Tool, string>> = {
-  agent: "Agent", inspector: "Inspector", refs: "References", find: "Find", debug: "Debugger", patches: "Patches", terminal: "Terminal",
+  agent: "智能体", inspector: "检查器", refs: "交叉引用", find: "查找", debug: "调试器", patches: "补丁", terminal: "终端",
 };
 
 export const TOOL_ICON: Readonly<Record<Tool, string>> = {

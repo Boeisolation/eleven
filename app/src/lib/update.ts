@@ -78,7 +78,7 @@ function stagedVersion(): string | null {
 
 /** Swaps the staged app in once this process exits, however it exits. */
 function installOnQuit(app: string): void {
-  const script = 'while kill -0 "$1" 2>/dev/null; do sleep 0.5; done; rm -rf "$3.old"; mv "$3" "$3.old" && { mv "$2" "$3" || mv "$3.old" "$3"; }; rm -rf "$3.old" "$4"';
+  const script = 'while kill -0 "$1" 2>/dev/null; do sleep 0.5; done; rm -rf "$3.old"; mv "$3" "$3.old" && { mv "$2" "$3" || mv "$3.old" "$3"; }; rm -rf "$3.old" "$4"; PATCH_BIN="$HOME/Library/Application Support/Eleven/scripts/autopatch.sh"; [ -x "$PATCH_BIN" ] && "$PATCH_BIN" "$3"';
   startWith("/bin/sh", ["-c", script, "sh", String(process.pid), STAGED_APP, app, STAGE], { detached: true, stdio: "ignore" }).unref();
 }
 

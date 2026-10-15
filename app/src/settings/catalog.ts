@@ -47,6 +47,8 @@ export type Ctx = {
   readonly setup: () => void;
 };
 
+import { t } from "../i18n";
+
 const ENGINES_DIR = join(ASSETS, "engines");
 export const ENGINE_LOGO = {
   rizin: join(ENGINES_DIR, "rizin.svg"),
@@ -55,14 +57,14 @@ export const ENGINE_LOGO = {
   ida: join(ENGINES_DIR, "ida.png"),
 } as const;
 
-const opts = (values: readonly string[]): readonly Option[] => values.map((value) => ({ value, label: value }));
+const opts = (values: readonly string[]): readonly Option[] => values.map((value) => ({ value, label: t(value) }));
 
 function btn(label: string, act: () => void, style: Action["style"] = "plain"): Action {
-  return { label, act, style };
+  return { label: t(label), act, style };
 }
 
 function info(title: string, desc: string, extra: Partial<SettingRowModel> = {}): SettingRowModel {
-  return { title, desc, control: { kind: "none" }, ...extra };
+  return { title: t(title), desc: t(desc), control: { kind: "none" }, ...extra };
 }
 
 type BoolKey = { [K in keyof Settings]: Settings[K] extends boolean ? K : never }[keyof Settings];
@@ -80,7 +82,16 @@ function pickControl<K extends ChoiceKey>(c: Ctx, kind: "seg" | "select", key: K
     const next = options.find((option) => option === value);
     if (next !== undefined) c.update(patchOf(key, next));
   };
-  return { kind, value: c.settings[key], pick, options: options.map((value): Option => { const note = notes[value]; return note ? { value, label: labels[value] ?? value, note } : { value, label: labels[value] ?? value }; }) };
+  return {
+    kind,
+    value: c.settings[key],
+    pick,
+    options: options.map((value): Option => {
+      const note = notes[value];
+      const label = labels[value] ? t(labels[value]) : t(value);
+      return note ? { value, label, note: t(note) } : { value, label };
+    }),
+  };
 }
 
 function makeHelpers(c: Ctx): {
@@ -92,17 +103,17 @@ function makeHelpers(c: Ctx): {
   readonly confirmed: (id: string, text: string, label: string, act: () => void, done: string) => Confirm;
 } {
   const confirmed = (id: string, text: string, label: string, act: () => void, done: string): Confirm => ({
-    id, text, label,
+    id, text: t(text), label: t(label),
     act: () => {
       act();
       c.refresh();
-      c.toast(done);
+      c.toast(t(done));
     },
   });
   return {
-    tg: (key, title, desc, extra = {}) => ({ title, desc, control: { kind: "toggle", on: c.settings[key], flip: () => c.update(patchOf(key, !c.settings[key])) }, ...extra }),
-    seg: (key, title, desc, options, labels = {}) => ({ title, desc, control: pickControl(c, "seg", key, options, labels) }),
-    sel: (key, title, desc, options, notes = {}) => ({ title, desc, control: pickControl(c, "select", key, options, {}, notes) }),
+    tg: (key, title, desc, extra = {}) => ({ title: t(title), desc: t(desc), control: { kind: "toggle", on: c.settings[key], flip: () => c.update(patchOf(key, !c.settings[key])) }, ...extra }),
+    seg: (key, title, desc, options, labels = {}) => ({ title: t(title), desc: t(desc), control: pickControl(c, "seg", key, options, labels) }),
+    sel: (key, title, desc, options, notes = {}) => ({ title: t(title), desc: t(desc), control: pickControl(c, "select", key, options, {}, notes) }),
     path: (key, title, shown, folder, extra = {}) => {
       const save = (value: string): void => {
         c.update(patchOf(key, value));
@@ -110,13 +121,13 @@ function makeHelpers(c: Ctx): {
         c.refresh();
       };
       const choose = async (): Promise<void> => {
-        const picked = await pickPath(folder ? "folder" : "file", title);
+        const picked = await pickPath(folder ? "folder" : "file", t(title));
         if (picked !== null) save(picked);
       };
       const chosen = c.settings[key] !== "";
       return {
-        title, desc: tildePath(shown), mono: true, keywords: "folder location path choose", control: { kind: "none" },
-        buttons: [btn("Choose…", () => void choose()), btn(`Show in ${FILE_MANAGER}`, () => showInFinder(shown)), ...(chosen ? [btn("Reset", () => save(""))] : [])],
+        title: t(title), desc: tildePath(shown), mono: true, keywords: "folder location path choose", control: { kind: "none" },
+        buttons: [btn(t("Choose…"), () => void choose()), btn(t(`Show in ${FILE_MANAGER}`), () => showInFinder(shown)), ...(chosen ? [btn(t("Reset"), () => save(""))] : [])],
         ...extra,
       };
     },
@@ -126,25 +137,25 @@ function makeHelpers(c: Ctx): {
 }
 
 const SKILL_TEXT: Readonly<Record<string, readonly [string, string]>> = {
-  "first-look": ["First look", "Tour a new app: what it is, how it starts, what stands out."],
-  "explain-function": ["Explain a function", "Walk through the function you have open, step by step."],
-  "name-functions": ["Name functions", "Suggest clear names for unnamed functions and apply the ones you approve."],
-  find: ["Find", "Hunt for a string, behaviour or API across the whole app."],
-  "trace-feature": ["Trace a feature", "Follow a feature from the button you press to the code that does the work."],
-  "network-map": ["Map the network code", "List what the app talks to and the code that does it."],
-  decompile: ["Clean up pseudocode", "Rewrite a function into readable C with types and names."],
-  "shader-check": ["Check a shader", "Read a Metal shader and point out what makes it slow."],
+  "first-look": ["初次侦察", "全面巡视新应用：基本架构、启动流程及关键特征。"],
+  "explain-function": ["解释函数", "分步详解当前打开的函数逻辑。"],
+  "name-functions": ["函数语义命名", "为未命名的函数推荐清晰的语义名称并按需应用。"],
+  find: ["深度搜索", "在整个应用范围内搜寻指定字符串、行为或 API。"],
+  "trace-feature": ["功能路径追踪", "从界面按钮或外部触发点深入追踪到实际执行代码。"],
+  "network-map": ["网络图谱测绘", "梳理应用网络通信目标及对应的处理代码。"],
+  decompile: ["优化伪代码", "将当前函数重写为带有精确类型与命名的易读 C 代码。"],
+  "shader-check": ["审计着色器", "静态解析 Metal 着色器并指出性能瓶颈。"],
 };
 
 const PERMISSION_TEXT: Readonly<Record<PermissionTool, readonly [string, string, string]>> = {
-  read: ["Read the open file", "Functions, strings, code and bytes in the app you have open.", "Reading"],
-  view: ["Move around the window", "Open functions, switch views and jump to addresses for you.", "Reading"],
-  rename: ["Rename functions and variables", "Saved in the project. You can undo any rename.", "Changing your project"],
-  notes: ["Add notes, comments and bookmarks", "Saved in the project next to the code.", "Changing your project"],
-  patch: ["Patch bytes", "Writes a patched copy. The original file is never touched.", "Changing your project"],
-  gpu: ["Run the app to record a GPU trace", "Starts the program under Instruments for a few seconds.", "Running things"],
-  debug: ["Run the app in the debugger", "Starts the program and stops at breakpoints.", "Running things"],
-  shell: [`Run commands on your computer`, "The agent’s own terminal tools, outside Eleven.", "Running things"],
+  read: ["读取打开的文件", "读取打开应用中的函数、字符串、反汇编与原始字节。", "Reading"],
+  view: ["切换界面视图", "切换标签页、跳转到指定函数或改变视图呈现方式。", "Reading"],
+  rename: ["重命名符号", "重命名函数、局部变量或内存地址。", "Changing your project"],
+  notes: ["添加注释与书签", "在代码中留下笔记、行内注释与地址书签。", "Changing your project"],
+  patch: ["修补二进制字节", "提出机器码或汇编字节级修改建议。", "Changing your project"],
+  gpu: ["录制 GPU 轨迹", "通过 Instruments 捕获着色器与渲染管线耗时。", "Running things"],
+  debug: ["程序调试", "设置断点、单步执行并检查变量值。", "Running things"],
+  shell: ["执行终端命令", "在您的终端 shell 中执行任意命令。", "Running things"],
 };
 
 function permissionRows(c: Ctx, group: string): readonly SettingRowModel[] {
@@ -400,18 +411,18 @@ export function buildPages(c: Ctx): Readonly<Record<Page, readonly GroupModel[]>
       ] },
     ],
     engines: [
-      { label: "Open files with", foot: "The engine you pick opens files. Eleven still uses the others when you ask for something only they can do.", rows: engineRows(c, h) },
-      { label: "Together", rows: [tg("ghidraPseudocode", "Use Ghidra for readable code", "Open files fast with Rizin, then show Ghidra’s clearer pseudocode when it’s ready.", { dim: activeEngine()?.id === "ghidra" })] },
+      { label: t("打开文件引擎"), foot: t("优先使用选定的引擎打开文件。当需要其他引擎专有功能时，Eleven 会自动协同调用。"), rows: engineRows(c, h) },
+      { label: t("协同分析"), rows: [tg("ghidraPseudocode", t("使用 Ghidra 生成可读代码"), t("先用 Rizin 秒级打开文件，待 Ghidra 解析就绪后切换为高可读性伪代码。"), { dim: activeEngine()?.id === "ghidra" })] },
       { label: "Ghidra", rows: [
-        sel("ghidraMemory", "Memory", `Big apps open faster with more. Automatic picks 2 to 4 GB from what ${THIS_DEVICE} has.`, ["Automatic", "4 GB", "8 GB", "16 GB"]),
-        tg("findParameters", "Work out function parameters", "Better pseudocode for big apps. Makes the first open slower."),
-        tg("rebuildSwitches", "Rebuild switch statements", "Turns jump tables back into switch blocks."),
-        tg("hiddenCode", "Look for code no one calls", "Finds more functions in stripped apps. The slowest option."),
-        tg("swiftNames", "Demangle Swift names", "Readable Swift function names. Turn off if a big Swift app takes too long to open."),
-        path("javaHome", "Java", c.info.java.path ?? "Not found", true, { status: c.info.java.version ? { text: `Java ${c.info.java.version}`, tone: "good" } : { text: "Not found", tone: "warn" } }),
+        sel("ghidraMemory", t("内存配额"), t("分析大型二进制时更多内存可加快处理速度。默认 2 GB 兼顾性能与低物理内存占用。"), ["Automatic", "2 GB", "4 GB", "8 GB", "16 GB"]),
+        tg("findParameters", t("推断函数参数"), t("为大型应用生成更优质的伪代码（初次载入速度稍慢）。")),
+        tg("rebuildSwitches", t("重建 Switch 结构"), t("将跳转表（Jump Table）反编译还原为 Switch 代码块。")),
+        tg("hiddenCode", t("深度扫描未引用代码"), t("在剥离符号（Stripped）的文件中探测更多函数（最耗时）。")),
+        tg("swiftNames", t("还原 Swift 符号名称"), t("反混淆并格式化 Swift 函数名称。若大型 Swift 程序载入卡顿可关闭。")),
+        path("javaHome", "Java", c.info.java.path ?? t("未找到"), true, { status: c.info.java.version ? { text: `Java ${c.info.java.version}`, tone: "good" } : { text: t("未找到"), tone: "warn" } }),
       ] },
-      { label: "Analysis tools", rows: [
-        info(`REA ${c.info.rea.version ?? ""}`.trim(), "Comes with Eleven. Gives agents the tools to read apps.", { status: c.info.rea.status }),
+      { label: t("分析工具链"), rows: [
+        info(`REA ${c.info.rea.version ?? ""}`.trim(), t("Eleven 内置逆向工程代理工具集，为智能体提供分析能力。"), { status: c.info.rea.status }),
       ] },
     ],
     code: [

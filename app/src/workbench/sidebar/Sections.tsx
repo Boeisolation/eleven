@@ -18,12 +18,12 @@ function useWork(): readonly WorkKind[] {
   const { s } = wb;
   const at = (addr: string, label = nameOf(addr)): WorkItem => ({ key: addr, label, addr });
   const kinds: readonly WorkKind[] = [
-    { id: "renames", label: "Renames", icon: "rename", items: [...s.names.keys()].map((addr) => at(addr)) },
-    { id: "bookmarks", label: "Bookmarks", icon: "bookmark", items: s.bookmarks.map((b) => at(b.addr)) },
-    { id: "notes", label: "Notes", icon: "note", items: [...s.notes.keys()].map((addr) => at(addr)) },
-    { id: "comments", label: "Comments", icon: "thread", items: [...s.comments.entries()].map(([addr, text]) => ({ key: addr, label: text, addr })) },
-    { id: "patches", label: "Patches", icon: "hex", items: loadProject(program.id).patches.map((patch) => ({ key: patch.addr, label: patch.bytes, addr: patch.addr })) },
-    { id: "groups", label: "Groups", icon: "graph", items: s.groups.map((group) => ({ key: `${group.fn}:${group.label}`, label: group.label, addr: group.fn })) },
+    { id: "renames", label: "重命名", icon: "rename", items: [...s.names.keys()].map((addr) => at(addr)) },
+    { id: "bookmarks", label: "书签", icon: "bookmark", items: s.bookmarks.map((b) => at(b.addr)) },
+    { id: "notes", label: "笔记", icon: "note", items: [...s.notes.keys()].map((addr) => at(addr)) },
+    { id: "comments", label: "注释", icon: "thread", items: [...s.comments.entries()].map(([addr, text]) => ({ key: addr, label: text, addr })) },
+    { id: "patches", label: "补丁", icon: "hex", items: loadProject(program.id).patches.map((patch) => ({ key: patch.addr, label: patch.bytes, addr: patch.addr })) },
+    { id: "groups", label: "分组", icon: "graph", items: s.groups.map((group) => ({ key: `${group.fn}:${group.label}`, label: group.label, addr: group.fn })) },
   ];
   return kinds.filter((kind) => kind.items.length > 0);
 }
@@ -36,7 +36,7 @@ export function YourWork(): ReactElement | null {
   const total = work.reduce((sum, kind) => sum + kind.items.length, 0);
   if (total === 0) return null;
   return (
-    <SideSection id="work" title="Your work" count={`${total}`}>
+    <SideSection id="work" title="您的工作成果" count={`${total}`}>
       {work.map((kind) => (
         <div key={kind.id} style={{ display: "flex", flexDirection: "column" }}>
           <SideRow lead={{ kind: "icon", name: kind.icon }} label={kind.label} side={`${kind.items.length}`} on={expanded === kind.id} onClick={() => setExpanded(expanded === kind.id ? null : kind.id)} />
@@ -50,9 +50,9 @@ export function YourWork(): ReactElement | null {
 }
 
 const LISTS: readonly { readonly list: ListKind; readonly label: string; readonly icon: string }[] = [
-  { list: "strings", label: "Strings", icon: "strings" },
-  { list: "imports", label: "Imports", icon: "library" },
-  { list: "segments", label: "Segments", icon: "segments" },
+  { list: "strings", label: "字符串", icon: "strings" },
+  { list: "imports", label: "导入表", icon: "library" },
+  { list: "segments", label: "内存段", icon: "segments" },
 ];
 
 /** Shaders and models, only when the binary has some. */

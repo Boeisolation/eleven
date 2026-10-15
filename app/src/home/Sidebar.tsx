@@ -11,39 +11,23 @@ import { FileIcon } from "../components/FileIcon";
 import { useSettings } from "../settings/store";
 import { type Appearance, onGlass, ThemeContext, useTheme } from "../theme";
 import { appIcon, CommandKeys, Dot, Icon, MenuSurface, Popover, Row, usePopover } from "../components/ui";
+import { t, tAgo, tShortAgo } from "../i18n";
 
 const APPEARANCES: readonly Appearance[] = ["Dark", "Light", "System"];
-const MINUTE = 60_000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
-
-const plural = (n: number, unit: string): string => `${n} ${unit}${n === 1 ? "" : "s"} ago`;
 
 function ago(at: number, now: number): string {
-  const gap = Math.max(0, now - at);
-  if (gap < MINUTE) return "now";
-  if (gap < HOUR) return plural(Math.floor(gap / MINUTE), "minute");
-  if (gap < DAY) return plural(Math.floor(gap / HOUR), "hour");
-  if (gap < 2 * DAY) return "yesterday";
-  if (gap < 7 * DAY) return plural(Math.floor(gap / DAY), "day");
-  if (gap < 14 * DAY) return "last week";
-  return plural(Math.floor(gap / (7 * DAY)), "week");
+  return tAgo(at, now);
 }
 
 function short(at: number, now: number): string {
-  const gap = Math.max(0, now - at);
-  if (gap < MINUTE) return "now";
-  if (gap < HOUR) return `${Math.floor(gap / MINUTE)}m`;
-  if (gap < DAY) return `${Math.floor(gap / HOUR)}h`;
-  if (gap < 7 * DAY) return `${Math.floor(gap / DAY)}d`;
-  return `${Math.floor(gap / (7 * DAY))}w`;
+  return tShortAgo(at, now);
 }
 
 function projectMeta(project: ProjectEntry, chats: readonly ThreadSummary[], now: number): string {
   const own = chats.filter((chat) => chat.project === project.id);
   const last = Math.max(project.openedAt, ...own.map((chat) => chat.updatedAt));
   const when = ago(last, now);
-  return own.length === 0 ? when : `${own.length} chat${own.length === 1 ? "" : "s"} · ${when}`;
+  return own.length === 0 ? when : `${own.length} 个对话 · ${when}`;
 }
 
 function rowStyle(on: boolean, fill: string): { readonly borderWidth: number; readonly borderColor: string; readonly backgroundColor: string } {
@@ -170,20 +154,20 @@ function AppMenu({ actions }: { readonly actions: AppMenuActions }): ReactElemen
           <Popover side="top" align="start" gap={6} onDismiss={menu.dismiss}>
             <MenuSurface width={252}>
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <MenuRow icon="gear" label="Settings" hint={settingsKeys} onClick={pick(actions.onSettings)} />
+                <MenuRow icon="gear" label={t("Settings")} hint={settingsKeys} onClick={pick(actions.onSettings)} />
                 <Row gap={10} style={{ height: 34, paddingLeft: 8, paddingRight: 4, color: p.text3 }}>
                   <Icon name="system" size={15} color={p.muted} />
-                  <div style={{ flexGrow: 1 }}>Appearance</div>
+                  <div style={{ flexGrow: 1 }}>{t("Appearance")}</div>
                   <ThemeSwitch />
                 </Row>
-                <MenuRow icon="retry" label="Run setup again" onClick={pick(actions.onSetup)} />
-                <MenuRow icon="star" label="What’s new" onClick={pick(actions.onWhatsNew)} />
+                <MenuRow icon="retry" label={t("Run setup again")} onClick={pick(actions.onSetup)} />
+                <MenuRow icon="star" label={t("What’s new")} onClick={pick(actions.onWhatsNew)} />
               </div>
             </MenuSurface>
           </Popover>
         )}
       </div>
-      <div onClick={actions.onSettings} role="button" aria-label="Settings" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, flexShrink: 0, borderRadius: 8, cursor: "pointer", hover: { opacity: 0.72 } }}>
+      <div onClick={actions.onSettings} role="button" aria-label={t("Settings")} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, flexShrink: 0, borderRadius: 8, cursor: "pointer", hover: { opacity: 0.72 } }}>
         <Icon name="gear" size={16} color={p.muted} />
       </div>
     </Row>
@@ -198,7 +182,7 @@ function ClearChats({ count, visible, onClear }: { readonly count: number; reado
     if (armed) setArmed(false);
     return null;
   }
-  const label = armed ? `Delete ${count} chat${count === 1 ? "" : "s"}?` : "Clear all";
+  const label = armed ? `删除 ${count} 个对话？` : t("Clear all");
   const press = (): void => {
     if (!armed) return setArmed(true);
     setArmed(false);
@@ -241,22 +225,22 @@ export function Sidebar({ projects, project, chats, threads, current, running, a
     <ThemeContext.Provider value={glass}>
     <div style={{ display: "flex", flexDirection: "column", width: 272, flexShrink: 0, paddingLeft: 10, paddingRight: 10, paddingBottom: 10 }}>
       <div style={{ height: 46, flexShrink: 0 }} />
-      <ActionRow icon="new-chat" label="New chat" command="thread" onClick={onNewThread} />
-      <ActionRow icon="folder" label="Open…" command="open" onClick={onOpen} />
+      <ActionRow icon="new-chat" label={t("New chat")} command="thread" onClick={onNewThread} />
+      <ActionRow icon="folder" label={t("Open…")} command="open" onClick={onOpen} />
       <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, minHeight: 0, overflowY: "scroll" }}>
-        <SectionLabel text="Projects">
+        <SectionLabel text={t("Projects", "项目")}>
           {projects.length > 0 && (
-            <div onClick={onSeeAll} role="button" aria-label="See all projects" style={{ fontSize: 12, color: p.faint, cursor: "pointer", hover: { opacity: 0.72 } }}>See all</div>
+            <div onClick={onSeeAll} role="button" aria-label="查看全部项目" style={{ fontSize: 12, color: p.faint, cursor: "pointer", hover: { opacity: 0.72 } }}>{t("See all", "查看全部")}</div>
           )}
         </SectionLabel>
-        {projects.length === 0 && <div style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 8, paddingRight: 8, fontSize: 12.5, color: p.faint }}>Open an app or binary to start a project.</div>}
+        {projects.length === 0 && <div style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 8, paddingRight: 8, fontSize: 12.5, color: p.faint }}>{t("Open an app or binary to start a project.", "打开应用或二进制文件即可创建项目。")}</div>}
         {projects.map((entry) => <ProjectRow key={entry.id} project={entry} meta={projectMeta(entry, chats, now)} on={entry.id === project} onClick={() => onOpenProject(entry)} />)}
         {activity}
         <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
-          <SectionLabel text={open ? `Chats in ${open.name}` : "Recent chats"}>
+          <SectionLabel text={open ? `${open.name} 中的对话` : t("Recent chats", "最近对话")}>
             <ClearChats count={listed.length} visible={hovered} onClear={() => onClearChats(listed.map((thread) => thread.id))} />
           </SectionLabel>
-          {shown.length === 0 && <div style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 8, paddingRight: 8, fontSize: 12.5, color: p.faint }}>No chats yet. Ask something to start one.</div>}
+          {shown.length === 0 && <div style={{ paddingTop: 4, paddingBottom: 4, paddingLeft: 8, paddingRight: 8, fontSize: 12.5, color: p.faint }}>{t("No chats yet. Ask something to start one.", "暂无对话。提出任何问题即可开始。")}</div>}
           {shown.map((thread) => (thread.id === renaming
             ? <ThreadName key={thread.id} id={thread.id} title={thread.title} height={32} onDone={() => setRenaming(null)} />
             : <ChatRow key={thread.id} title={thread.title} when={short(thread.updatedAt, now)} busy={running.has(thread.id)} on={thread.id === current} onClick={() => onOpenThread(thread.id)} menu={() => threadMenu(thread, () => setRenaming(thread.id))} />
