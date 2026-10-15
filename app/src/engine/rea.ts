@@ -79,7 +79,7 @@ function plainEnv(): Record<string, string> {
   return { ...Object.fromEntries(Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined)), ...reaEnv() };
 }
 
-const MAXMEM: Readonly<Record<Settings["ghidraMemory"], string | null>> = { Automatic: null, "4 GB": "4G", "8 GB": "8G", "16 GB": "16G" };
+const MAXMEM: Readonly<Record<Settings["ghidraMemory"], string | null>> = { Automatic: null, "2 GB": "2G", "4 GB": "4G", "8 GB": "8G", "16 GB": "16G" };
 
 /** Ghidra knobs from Settings → Analysis, as the environment REA reads when it starts Ghidra. */
 export function reaEnv(s: Settings = currentSettings()): Record<string, string> {

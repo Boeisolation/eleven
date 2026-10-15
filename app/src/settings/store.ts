@@ -103,7 +103,7 @@ export type Settings = {
   readonly disabledSkills: readonly string[];
   readonly skillsInComposer: boolean;
   readonly ghidraPseudocode: boolean;
-  readonly ghidraMemory: "Automatic" | "4 GB" | "8 GB" | "16 GB";
+  readonly ghidraMemory: "Automatic" | "2 GB" | "4 GB" | "8 GB" | "16 GB";
   readonly findParameters: boolean;
   readonly rebuildSwitches: boolean;
   readonly hiddenCode: boolean;
@@ -297,7 +297,7 @@ const SETTINGS: z.ZodType<Settings> = z.object({
   disabledSkills: z.array(z.string()).catch([]),
   skillsInComposer: z.boolean().catch(D.skillsInComposer),
   ghidraPseudocode: z.boolean().catch(D.ghidraPseudocode),
-  ghidraMemory: z.enum(["Automatic", "4 GB", "8 GB", "16 GB"]).catch(D.ghidraMemory),
+  ghidraMemory: z.enum(["Automatic", "2 GB", "4 GB", "8 GB", "16 GB"]).catch(D.ghidraMemory),
   findParameters: z.boolean().catch(D.findParameters),
   rebuildSwitches: z.boolean().catch(D.rebuildSwitches),
   hiddenCode: z.boolean().catch(D.hiddenCode),

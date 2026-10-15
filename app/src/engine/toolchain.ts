@@ -135,6 +135,8 @@ function ghidraMemory(choice: Settings["ghidraMemory"]): string | null {
   switch (choice) {
     case "Automatic":
       return null;
+    case "2 GB":
+      return "2G";
     case "4 GB":
       return "4G";
     case "8 GB":
@@ -164,10 +166,19 @@ export function adoptToolchain(): void {
   const zone = localZone();
   if (!process.env.TZ && zone) process.env.TZ = zone;
   const memory = ghidraMemory(currentSettings().ghidraMemory);
-  if (memory) process.env.GHIDRA_HEADLESS_MAXMEM = memory;
-  else if (!process.env.GHIDRA_HEADLESS_MAXMEM && !process.env.GHIDRA_MAXMEM) {
+  if (memory) {
+    process.env.GHIDRA_HEADLESS_MAXMEM = memory;
+    process.env.GHIDRA_MAXMEM = memory;
+  } else if (!process.env.GHIDRA_HEADLESS_MAXMEM && !process.env.GHIDRA_MAXMEM) {
     const gb = Math.max(2, Math.min(4, Math.floor(totalmem() / 1024 ** 3 / 4)));
     process.env.GHIDRA_HEADLESS_MAXMEM = `${gb}G`;
+    process.env.GHIDRA_MAXMEM = `${gb}G`;
+  }
+  const jvmOpts = "-XX:+UseG1GC -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=40 -XX:G1PeriodicGCInterval=10000";
+  if (!process.env._JAVA_OPTIONS) {
+    process.env._JAVA_OPTIONS = jvmOpts;
+  } else if (!process.env._JAVA_OPTIONS.includes("UseG1GC")) {
+    process.env._JAVA_OPTIONS = `${process.env._JAVA_OPTIONS} ${jvmOpts}`;
   }
   const skipped = skippedAnalyzers(currentSettings());
   if (skipped !== null) process.env.REA_GHIDRA_DISABLED_ANALYZERS = skipped;
