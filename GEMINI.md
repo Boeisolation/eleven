@@ -6,7 +6,7 @@
 
 
 ---
-## Claude Code 迁移进度与活跃上下文 (CLI + GUI 联合归档)
+## Claude Code 迁移进度与活跃上下文 (CLI + GUI + Web 全量归档)
 
-- 本工程包含 **0 条 CLI 记忆文件** 与 **0 场 GUI 历史会话**。
+- 本工程包含 **0 条 CLI 记忆文件**、**0 场 Desktop 会话** 与 **0 场云端对话**。
 - **工作记录全量索引**: 查阅 [`docs/ANTIGRAVITY_WORK_RECORD.md`](docs/ANTIGRAVITY_WORK_RECORD.md)。
