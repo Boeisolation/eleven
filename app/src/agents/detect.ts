@@ -47,7 +47,7 @@ function isExecutable(path: string): boolean {
 }
 
 /** Where agent installers put their tools, for when Eleven starts without the login shell's PATH. */
-const AGENT_BIN_DIRS = OS === "windows" ? [] : [join(homedir(), ".grok", "bin"), join(homedir(), ".local", "bin"), join(homedir(), ".bun", "bin"), join(homedir(), ".cargo", "bin"), "/opt/homebrew/bin", "/usr/local/bin"];
+const AGENT_BIN_DIRS = OS === "windows" ? [] : [join(homedir(), ".grok", "bin"), join(homedir(), ".local", "bin"), join(homedir(), ".bun", "bin"), join(homedir(), ".cargo", "bin"), join(homedir(), ".antigravity-ide", "antigravity-ide", "bin"), "/opt/homebrew/bin", "/usr/local/bin"];
 
 /** Looks a command up on PATH directly, so shell functions and aliases never match. */
 export function findOnPath(name: string, extra: readonly string[] = []): string | null {
@@ -121,6 +121,12 @@ function findAgentTool(name: string): string | null {
 }
 
 async function detectOne(agent: AgentEntry, roots: readonly string[]): Promise<NativeCommand | null> {
+  if (agent.id === "antigravity-acp") {
+    const server = findAgentTool("agy_acp_server.par") ?? findAgentTool("agy-acp-server");
+    if (server) return { path: server, args: [] };
+    const agy = findAgentTool("agy");
+    if (agy) return { path: agy, args: ["--mode", "auto"] };
+  }
   const own = standaloneAcp(agent.id);
   if (own) return own;
   const dist = agent.distribution;
@@ -158,7 +164,12 @@ export type Presence = {
 /** The agent's own CLI on PATH, such as `claude` for Claude, or null when it has none or isn't installed. */
 function ownCli(agent: AgentEntry): string | null {
   const name = AGENT_CLI[agent.id];
-  return name ? findAgentTool(name) : null;
+  if (name) {
+    const found = findAgentTool(name);
+    if (found) return found;
+  }
+  const candidate = agent.id.replace(/-acp$/, "").replace(/-build$/, "").replace(/-cli$/, "");
+  return findAgentTool(candidate);
 }
 
 /** Agents on this Mac, keyed by registry id: their ACP command, their own CLI, or both. */
